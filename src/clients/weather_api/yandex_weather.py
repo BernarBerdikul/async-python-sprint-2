@@ -7,7 +7,7 @@ from src.utils import constants
 
 logger = logging.getLogger()
 
-__all__ = ('YandexWeatherAPI',)
+__all__ = ("YandexWeatherAPI",)
 
 
 class YandexWeatherAPI:
@@ -18,11 +18,11 @@ class YandexWeatherAPI:
         """Base request method."""
         try:
             with urlopen(url=url) as req:
-                resp = req.read().decode('utf-8')
+                resp = req.read().decode("utf-8")
                 resp = json.loads(resp)
             if req.status != http.HTTPStatus.OK:
                 raise Exception(
-                    f'Error during execute request. {resp.status}: {resp.reason}',
+                    f"Error during execute request. {resp.status}: {resp.reason}",
                 )
             return resp
         except Exception as ex:
@@ -34,7 +34,7 @@ class YandexWeatherAPI:
         try:
             return constants.CITIES[city_name]
         except KeyError:
-            raise Exception(f'Please check that city {city_name} exists')
+            raise Exception(f"Please check that city {city_name} exists")
 
     def get_forecasting(self, city_name: str):
         """
