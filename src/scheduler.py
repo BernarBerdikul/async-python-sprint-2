@@ -1,27 +1,32 @@
 from src.job import Job
 
+# from src.utils.decorators import coroutine
+
 
 class Scheduler:
     """Scheduler of jobs."""
 
     def __init__(self, pool_size: int = 10):
         self.pool_size = pool_size
-        self.tasks: list[Job] = []
+        self.jobs: list[Job] = []
 
     def schedule(self, job: Job):
         """Add new job to scheduler."""
-        print("Add new job to scheduler")
-        self.tasks.append(job)
+        print("Add new job to scheduler.")
+        self.jobs.append(job)
 
     def run(self):
         """Run scheduler."""
-        print("Run scheduler")
+        print("Run scheduler.")
 
-        while self.tasks:
-            job = self.tasks.pop()
-            job.run()
+        while self.jobs:
+            job = self.jobs.pop()
+            job.result = job.run()
             if job.result:
-                print("Job result:", job.result)
+                print(f"Job (id={job.id}) result: {job.result}")
+
+    # @coroutine
+    # def job_execute(self):
 
     def restart(self):
         pass

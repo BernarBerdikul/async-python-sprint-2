@@ -2,11 +2,19 @@ from src.job import Job
 from src.scheduler import Scheduler
 
 
+def say_hello(name: str):
+    return f"Hello {name}!"
+
+
 def main():
     scheduler = Scheduler()
 
     my_job = Job(
-        target_func=lambda: 1 + 1, max_working_time=10, try_count=1, dependencies=[]
+        target_func=say_hello,
+        args=["John"],
+        max_working_time=10,
+        try_count=1,
+        dependencies=[],
     )
 
     scheduler.schedule(job=my_job)
