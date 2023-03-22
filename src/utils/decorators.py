@@ -5,7 +5,7 @@ def coroutine(func):
     @wraps(func)
     def inner(*args, **kwargs):
         gen = func(*args, **kwargs)
-        print("Инициализируем генератор")
+        print("Generator initialization.")
         gen.send(None)
         return gen
 

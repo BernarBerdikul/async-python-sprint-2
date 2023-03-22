@@ -1,9 +1,28 @@
 class Job:
-    def __init__(self, start_at="", max_working_time=-1, tries=0, dependencies=[]):
-        pass
+    """Задача для планировщика"""
+
+    def __init__(
+        self,
+        target_func,
+        start_at="",
+        max_working_time: int = -1,
+        try_count: int = 0,
+        dependencies=None,
+    ):
+        self.target_func = target_func
+        self.start_at = start_at
+        self.max_working_time = max_working_time
+        self.try_count = try_count
+        if dependencies is None:
+            dependencies = []
+        self.dependencies = dependencies
+        self.result = None
 
     def run(self):
-        pass
+        try:
+            self.result = self.target_func()
+        except Exception as e:
+            print(e)
 
     def pause(self):
         pass
