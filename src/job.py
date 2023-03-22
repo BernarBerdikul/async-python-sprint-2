@@ -1,5 +1,5 @@
 class Job:
-    """Задача для планировщика"""
+    """Job for scheduler."""
 
     def __init__(
         self,
@@ -9,6 +9,7 @@ class Job:
         try_count: int = 0,
         dependencies=None,
     ):
+        """Init job."""
         self.target_func = target_func
         self.start_at = start_at
         self.max_working_time = max_working_time
@@ -19,6 +20,7 @@ class Job:
         self.result = None
 
     def run(self):
+        """Run job."""
         try:
             self.result = self.target_func()
         except Exception as e:
