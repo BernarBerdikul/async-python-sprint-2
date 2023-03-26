@@ -7,7 +7,10 @@ from src.utils import constants
 
 logger = logging.getLogger()
 
-__all__ = ("YandexWeatherAPI",)
+__all__ = (
+    "YandexWeatherAPI",
+    "get_city_weather",
+)
 
 
 class YandexWeatherAPI:
@@ -43,3 +46,11 @@ class YandexWeatherAPI:
         """
         city_url = self._get_url_by_city_name(city_name=city_name)
         return self._do_req(url=city_url)
+
+
+def get_city_weather(city_name: str):
+    """Method for getting weather by city name."""
+    logger.info(f"Started get_city_weather for {city_name}")
+    weather_client = YandexWeatherAPI()
+    response = weather_client.get_forecasting(city_name=city_name)
+    return response

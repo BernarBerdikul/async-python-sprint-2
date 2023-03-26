@@ -1,5 +1,7 @@
 import uuid
-from typing import Callable
+from typing import Any, Callable
+
+from src.utils.enums import JobStatus
 
 
 class Job:
@@ -8,23 +10,29 @@ class Job:
     def __init__(
         self,
         target_func: Callable,
+        target_func_name: str,
         args=None,
         kwargs=None,
         start_at="",
+        job_id: uuid.UUID | None = None,
         max_working_time: int = -1,
         try_count: int = 0,
-        dependencies=None,
+        dependencies: list["Job"] | None = None,
+        status: JobStatus = JobStatus.CREATED,
+        result: Any | None = None,
     ):
         """Init job."""
-        self.id = uuid.uuid4()
+        self.job_id = job_id if job_id else uuid.uuid4()
         self.target_func = target_func
+        self.target_func_name = target_func_name
         self.args = args if args else []
         self.kwargs = kwargs if kwargs else {}
         self.start_at = start_at
         self.max_working_time = max_working_time
         self.try_count = try_count
         self.dependencies = dependencies if dependencies else []
-        self.result = None
+        self.status = status
+        self.result = result
 
     def run(self):
         """Run job."""
@@ -34,8 +42,6 @@ class Job:
             print(e)
             return None
 
-    def pause(self):
-        pass
-
-    def stop(self):
-        pass
+    @property
+    def is_completed(self) -> bool:
+        return self.status == JobStatus.COMPLETED

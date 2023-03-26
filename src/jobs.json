@@ -1,0 +1,17 @@
+[
+  {
+    "job_id": "9e6a699112534d7dac36d6c6347cb564",
+    "target_func": null,
+    "target_func_name": "say_hello",
+    "args": [
+      "John"
+    ],
+    "kwargs": {},
+    "start_at": "",
+    "max_working_time": 10,
+    "try_count": 1,
+    "dependencies": [],
+    "status": null,
+    "result": null
+  }
+]
