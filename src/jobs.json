@@ -1,8 +1,8 @@
 [
   {
-    "job_id": "9e6a699112534d7dac36d6c6347cb564",
+    "job_id": "632b20ec02754b409e89979761bd2071",
     "target_func": null,
-    "target_func_name": "say_hello",
+    "target_func_name": "task_say_hello",
     "args": [
       "John"
     ],

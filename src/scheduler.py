@@ -1,7 +1,11 @@
 import json
+import time
+from datetime import datetime
+from typing import Any, Generator
 from uuid import UUID
 
 from src.job import Job
+from src.utils.decorators import coroutine
 from src.utils.enums import JobStatus
 
 
@@ -18,6 +22,13 @@ class Scheduler:
     def schedule(self, job: Job):
         """Add new job to scheduler."""
         print(f"Add job (id={job.job_id}) to scheduler.")
+        if inner_jobs := job.dependencies:
+            for inner_job in inner_jobs:
+                print(
+                    f"Add inner job (id={inner_job.job_id}, parent={job.job_id}) to scheduler."
+                )
+                self.schedule(job=inner_job)
+
         job.status = JobStatus.IN_QUEUE
         self.JOB_FUNC_NAME_MAP[job.target_func_name] = job.target_func
         self.jobs.append(job)
@@ -26,11 +37,48 @@ class Scheduler:
         """Run scheduler."""
         print("Run scheduler.")
 
+        coro: Generator[Any, Job, None] = self.coro_generator()
+
         while self.jobs:
             job = self.jobs.pop()
-            job.result = job.run()
-            if job.result:
-                print(f"Job (id={job.job_id}) result: {job.result}")
+            if job.status == JobStatus.IN_QUEUE:
+
+                print(f"Next task start at {job.start_at}")
+                time_to_next_task = (
+                    job.start_at.timestamp() - datetime.now().timestamp()
+                )
+
+                if time_to_next_task > 0:
+                    time.sleep(time_to_next_task)
+
+                if job.check_dependencies_task_is_complete() is False:
+                    job.set_next_start_datetime()
+
+                if self.count_by_status(JobStatus.IN_PROGRESS) < self.pool_size:
+                    job.status = JobStatus.IN_PROGRESS
+                    coro.send(job)
+                else:
+                    print("Available only 10 jobs in queue")
+
+    @coroutine
+    def coro_generator(self) -> Generator[Any, Job, None]:
+        while job := (yield):
+            try:
+                job.result = job.run()
+                job.status = JobStatus.COMPLETED
+                print(job.result)
+                yield job.result
+            except Exception as e:
+                print(e)
+                if job.try_count > 0:
+                    job.try_count -= 1
+                    job.status = JobStatus.IN_QUEUE
+                else:
+                    job.status = JobStatus.ERROR
+                    job.result = e
+
+    def count_by_status(self, status: JobStatus) -> int:
+        return len([job for job in self.jobs if job.status == status])
 
     def restart(self):
         """Restart scheduler."""

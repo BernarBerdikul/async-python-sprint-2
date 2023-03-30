@@ -1,5 +1,6 @@
+import datetime
 import uuid
-from typing import Any, Callable
+from typing import Any, Callable, Generator
 
 from src.utils.enums import JobStatus
 
@@ -13,7 +14,7 @@ class Job:
         target_func_name: str,
         args=None,
         kwargs=None,
-        start_at="",
+        start_at=datetime.datetime.now(),
         job_id: uuid.UUID | None = None,
         max_working_time: int = -1,
         try_count: int = 0,
@@ -37,11 +38,27 @@ class Job:
     def run(self):
         """Run job."""
         try:
-            return self.target_func(*self.args, **self.kwargs)
+            result = []
+            coro: Generator = self.target_func()
+            for arg in self.args:
+                answer = coro.send(arg)
+                result.append(answer)
+            for kwarg in self.kwargs:
+                answer = coro.send(kwarg)
+                result.append(answer)
+            coro.close()
+            return result
         except Exception as e:
             print(e)
             return None
 
-    @property
-    def is_completed(self) -> bool:
-        return self.status == JobStatus.COMPLETED
+    def check_dependencies_task_is_complete(self):
+        for dependencies_task in self.dependencies:
+            if dependencies_task.status == JobStatus.COMPLETED:
+                continue
+            else:
+                return False
+        return True
+
+    def set_next_start_datetime(self) -> None:
+        self.start_at += datetime.timedelta(minutes=5)
