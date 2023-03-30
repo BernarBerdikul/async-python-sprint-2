@@ -1,8 +1,11 @@
 import datetime
+import logging
 import uuid
-from typing import Any, Callable, Generator
+from typing import Callable, Generator
 
 from src.utils.enums import JobStatus
+
+logger = logging.getLogger(__name__)
 
 
 class Job:
@@ -20,7 +23,7 @@ class Job:
         try_count: int = 0,
         dependencies: list["Job"] | None = None,
         status: JobStatus = JobStatus.CREATED,
-        result: Any | None = None,
+        result=None,
     ):
         """Init job."""
         self.job_id = job_id if job_id else uuid.uuid4()
@@ -33,32 +36,33 @@ class Job:
         self.try_count = try_count
         self.dependencies = dependencies if dependencies else []
         self.status = status
-        self.result = result
+        self.result = result if result else []
 
-    def run(self):
+    def run(self) -> None:
         """Run job."""
         try:
-            result = []
+            logger.info(
+                f"Job [id={self.job_id}] get params: args={self.args}, kwargs={self.kwargs}."
+            )
             coro: Generator = self.target_func()
             for arg in self.args:
                 answer = coro.send(arg)
-                result.append(answer)
+                self.result.append(answer)
             for kwarg in self.kwargs:
                 answer = coro.send(kwarg)
-                result.append(answer)
+                self.result.append(answer)
             coro.close()
-            return result
+            logger.info(f"Job id={self.job_id} result: {self.result}")
         except Exception as e:
-            print(e)
-            return None
+            logger.error(e)
 
-    def check_dependencies_task_is_complete(self):
-        for dependencies_task in self.dependencies:
-            if dependencies_task.status == JobStatus.COMPLETED:
-                continue
-            else:
-                return False
-        return True
+    def check_dependencies_task_completed(self) -> bool:
+        return all(
+            [
+                dependencies_task.status == JobStatus.COMPLETED
+                for dependencies_task in self.dependencies
+            ]
+        )
 
-    def set_next_start_datetime(self) -> None:
+    def make_task_sleep(self) -> None:
         self.start_at += datetime.timedelta(minutes=5)

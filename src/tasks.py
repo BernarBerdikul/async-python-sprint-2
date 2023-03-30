@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 from pathlib import Path
@@ -7,6 +8,8 @@ from src.clients.weather_api import get_city_weather
 from src.utils.decorators import coroutine
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+logger = logging.getLogger(__name__)
 
 
 @coroutine
@@ -18,7 +21,7 @@ def task_say_hello() -> Generator[str, str, None]:
             name: str = yield  # type: ignore
             yield f"Hello {name}!"
         except GeneratorExit:
-            print("Close coro for 'task_say_hello'")
+            logger.debug("Close coro for 'task_say_hello'")
             raise
 
 
@@ -31,7 +34,7 @@ def task_with_network() -> Generator[dict, str, None]:
             city_name = yield  # type: ignore
             yield get_city_weather(city_name)
         except GeneratorExit:
-            print("Close coro for 'task_with_network'")
+            logger.debug("Close coro for 'task_with_network'")
             raise
 
 
@@ -56,7 +59,7 @@ def task_create_dirs() -> Generator[Path, str, None]:
             create_text_file(dir_path=new_dir, name=dir_name)
             yield new_dir
         except GeneratorExit:
-            print("Close coro for 'task_create_dirs'")
+            logger.debug("Close coro for 'task_create_dirs'")
             raise
 
 
@@ -75,5 +78,5 @@ def task_delete_dirs() -> Generator[bool, str, None]:
             if is_deleted:
                 shutil.rmtree(dir_for_delete)
         except GeneratorExit:
-            print("Close coro for 'task_delete_dirs'")
+            logger.debug("Close coro for 'task_delete_dirs'")
             raise

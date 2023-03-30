@@ -23,16 +23,16 @@ def main():
     # scheduler.stop()
     # scheduler.restart()
 
-    # my_job2 = Job(
-    #     target_func=task_say_hello,
-    #     target_func_name=task_say_hello.__name__,
-    #     args=["Bernar"],
-    #     max_working_time=10,
-    #     try_count=1,
-    #     dependencies=[],
-    # )
-    # scheduler.schedule(job=my_job2)
-    # scheduler.run()
+    my_job2 = Job(
+        target_func=task_say_hello,
+        target_func_name=task_say_hello.__name__,
+        args=["Bernar"],
+        max_working_time=10,
+        try_count=1,
+        dependencies=[],
+    )
+    scheduler.schedule(job=my_job2)
+    scheduler.run()
 
 
 if __name__ == "__main__":
