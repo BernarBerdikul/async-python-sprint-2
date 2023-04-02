@@ -1,7 +1,7 @@
 import datetime
 import logging
 import uuid
-from typing import Callable, Generator
+from typing import Callable, Generator, Self
 
 from src.utils.enums import JobStatus
 
@@ -21,12 +21,12 @@ class Job:
         job_id: uuid.UUID | None = None,
         max_working_time: int = -1,
         try_count: int = 0,
-        dependencies: list["Job"] | None = None,
+        dependencies: list[Self] | None = None,
         status: JobStatus = JobStatus.CREATED,
         result=None,
     ):
         """Init job."""
-        self.job_id = job_id if job_id else uuid.uuid4()
+        self.job_id = job_id or uuid.uuid4()
         self.target_func = target_func
         self.target_func_name = target_func_name
         self.args = args if args else []

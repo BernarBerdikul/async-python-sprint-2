@@ -1,10 +1,12 @@
+import datetime
 import shutil
 from pathlib import Path
 from typing import Generator
 
 import pytest
 
-from src.tasks import task_create_dirs
+from src.job import Job
+from src.tasks import task_create_dirs, task_say_hello
 
 
 @pytest.fixture(scope="function")
@@ -24,3 +26,17 @@ def created_dirs():
     for created_dir in created_dirs:
         if created_dir.exists():
             shutil.rmtree(created_dir)
+
+
+@pytest.fixture(scope="function")
+def simple_job():
+    job = Job(
+        target_func=task_say_hello,
+        target_func_name=task_say_hello.__name__,
+        args=["John"],
+        start_at=datetime.datetime.now() + datetime.timedelta(seconds=5),
+        max_working_time=10,
+        try_count=2,
+        dependencies=[],
+    )
+    return job
