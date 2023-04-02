@@ -1,9 +1,8 @@
-import json
 import logging
+import pickle
 import time
 from datetime import datetime
 from typing import Any, Generator
-from uuid import UUID
 
 from src.job import Job
 from src.utils.decorators import coroutine
@@ -15,8 +14,7 @@ logger = logging.getLogger(__name__)
 class Scheduler:
     """Scheduler of jobs."""
 
-    STORAGE_FILE = "jobs.json"
-    JOB_FUNC_NAME_MAP: dict[str, object] = {}
+    STORAGE_FILE = "jobs.txt"
 
     def __init__(self, pool_size: int = 10):
         self.pool_size = pool_size
@@ -33,7 +31,6 @@ class Scheduler:
                 self.schedule(job=inner_job)
 
         job.status = JobStatus.IN_QUEUE
-        self.JOB_FUNC_NAME_MAP[job.target_func_name] = job.target_func
         self.jobs.append(job)
 
     def run(self):
@@ -87,15 +84,14 @@ class Scheduler:
 
         logger.info("Load jobs from storage.")
         try:
-            with open(self.STORAGE_FILE) as f:
-                jobs = json.load(f)
+            with open(self.STORAGE_FILE, "rb") as f:
+                jobs = pickle.load(f)
         except Exception as e:
             logger.error(f"Error while loading jobs from storage: {e}.")
 
         logger.info(f"{len(jobs)} jobs loaded from storage.")
         logger.info("Add jobs to scheduler.")
         for job in jobs:
-            job["target_func"] = self.JOB_FUNC_NAME_MAP.get(job["target_func_name"])
             self.schedule(job=Job(**job))
 
         logger.info("Restart scheduler.")
@@ -105,11 +101,6 @@ class Scheduler:
         """Stop scheduler."""
 
         logger.info("Save jobs in storage.")
-
-        def uuid_convert(o):
-            if isinstance(o, UUID):
-                return o.hex
-
         data = []
         for job in self.jobs:
             job_data = job.__dict__
@@ -117,8 +108,8 @@ class Scheduler:
             data.append(job_data)
 
         logger.info(f"{len(data)} jobs saved in storage.")
-        with open(self.STORAGE_FILE, "w") as f:
-            json.dump(data, f, default=uuid_convert)
+        with open(self.STORAGE_FILE, "wb") as f:
+            pickle.dump(data, f)
 
         logger.info("Scheduler is stopped.")
         self.jobs.clear()

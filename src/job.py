@@ -14,7 +14,6 @@ class Job:
     def __init__(
         self,
         target_func: Callable,
-        target_func_name: str,
         args=None,
         kwargs=None,
         start_at=datetime.datetime.now(),
@@ -28,7 +27,6 @@ class Job:
         """Init job."""
         self.job_id = job_id or uuid.uuid4()
         self.target_func = target_func
-        self.target_func_name = target_func_name
         self.args = args if args else []
         self.kwargs = kwargs if kwargs else {}
         self.start_at = start_at

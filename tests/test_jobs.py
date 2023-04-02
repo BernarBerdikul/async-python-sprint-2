@@ -4,7 +4,6 @@ from src.utils.enums import JobStatus
 def test_create_job(simple_job):
     assert simple_job is not None
     assert simple_job.target_func is not None
-    assert simple_job.target_func_name is not None
     assert simple_job.args is not None
     assert simple_job.start_at is not None
     assert simple_job.max_working_time is not None

@@ -6,6 +6,7 @@ from typing import Generator
 import pytest
 
 from src.job import Job
+from src.scheduler import Scheduler
 from src.tasks import task_create_dirs, task_say_hello
 
 
@@ -29,14 +30,17 @@ def created_dirs():
 
 
 @pytest.fixture(scope="function")
-def simple_job():
-    job = Job(
+def simple_job() -> Job:
+    return Job(
         target_func=task_say_hello,
-        target_func_name=task_say_hello.__name__,
         args=["John"],
         start_at=datetime.datetime.now() + datetime.timedelta(seconds=5),
         max_working_time=10,
         try_count=2,
         dependencies=[],
     )
-    return job
+
+
+@pytest.fixture(scope="function")
+def simple_scheduler() -> Scheduler:
+    return Scheduler()
